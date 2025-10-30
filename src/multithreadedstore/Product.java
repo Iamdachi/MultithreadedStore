@@ -1,4 +1,3 @@
 package multithreadedstore;
 
-public class Product {
-}
+record Product(String name, double price) {}
