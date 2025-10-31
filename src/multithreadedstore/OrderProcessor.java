@@ -3,35 +3,62 @@ package multithreadedstore;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * Processes orders from a queue using multiple worker threads and updates the warehouse stock.
+ */
 class OrderProcessor {
+
     private final Warehouse warehouse;
     private final BlockingQueue<Order> queue;
-    private final List<Order> processed;
-    private final ExecutorService workers = Executors.newFixedThreadPool(2);
+    private final List<Order> processedOrders;
+    private final ExecutorService workers;
 
-    OrderProcessor(Warehouse warehouse, BlockingQueue<Order> queue, List<Order> processed) {
+    /**
+     * Creates an OrderProcessor.
+     *
+     * @param warehouse the warehouse to update
+     * @param orderQueue the orderQueue from which orders are taken
+     * @param processedOrders the list where processed orders are stored
+     * @param workerCount number of worker threads
+     */
+    public OrderProcessor(Warehouse warehouse, BlockingQueue<Order> orderQueue,
+                          List<Order> processedOrders, int workerCount) {
         this.warehouse = warehouse;
-        this.queue = queue;
-        this.processed = processed;
+        this.queue = orderQueue;
+        this.processedOrders = processedOrders;
+        this.workers = Executors.newFixedThreadPool(workerCount);
     }
 
+    /**
+     * Starts worker threads to process orders from the queue.
+     * Stops when poisoned.
+     */
     void startWorkers(int count) {
         for (int i = 0; i < count; i++) {
             workers.submit(() -> {
                 try {
                     while (true) {
-                        Order o = queue.take();
-                        warehouse.process(o);
-                        processed.add(o);
+                        Order order = queue.take();
+                        if (order.isPoison()) break;
+                        warehouse.process(order);
+                        synchronized (processedOrders) {
+                            processedOrders.add(order);
+                        }
                     }
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
             });
         }
     }
 
+    /**
+     * Waits for all workers to finish processing.
+     *
+     * @throws InterruptedException if the current thread is interrupted
+     */
     void awaitProcessing() throws InterruptedException {
-        while (!queue.isEmpty()) Thread.sleep(100);
-        workers.shutdownNow();
+        workers.shutdown();
         workers.awaitTermination(1, TimeUnit.SECONDS);
     }
 }
