@@ -11,13 +11,18 @@ Total number of orders; Total profit; Top 3 best selling products;
 multithreadedstore/
 ├── src/
 │   └── multithreadedstore/
-│       ├── Main.java
-│       ├── Product.java
-│       ├── Order.java
-│       ├── Warehouse.java
-│       ├── OrderProcessor.java
-│       ├── OrderGenerator.java
-│       └── Analytics.java
+│       ├── model/
+│       │   ├── Product.java
+│       │   ├── Order.java
+│       │   └── Report.java
+│       │
+│       ├── service/
+│       │   ├── Warehouse.java
+│       │   ├── OrderGenerator.java
+│       │   ├── OrderProcessor.java
+│       │   └── Analytics.java
+│       │
+│       └── Main.java
 └── out/
 ```
 
@@ -32,7 +37,7 @@ mkdir -p out
 
 3. Compile all Java files into that directory:
 ```bash
-javac -d out src/multithreadedstore/*.java
+javac -d out $(find src -name "*.java")
 ```
 
 4. Run the program using the out directory as the classpath:

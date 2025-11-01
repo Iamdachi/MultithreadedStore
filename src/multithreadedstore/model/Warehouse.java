@@ -1,4 +1,4 @@
-package multithreadedstore;
+package multithreadedstore.model;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +27,9 @@ public class Warehouse {
      * @param order the order to process
      */
     public void process(Order order) {
-        if (order == null || order.getItems().isEmpty()) return;
+        if (order == null || order.getItems().isEmpty()) {
+            return;
+        }
 
         order.getItems().forEach((product, quantity) -> {
             stock.computeIfPresent(product, (key, currentStock) -> {

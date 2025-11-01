@@ -1,12 +1,18 @@
-package multithreadedstore;
+package multithreadedstore.service;
 
-import java.util.*;
-import java.util.concurrent.*;
+import multithreadedstore.model.Order;
+import multithreadedstore.model.Warehouse;
+
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Processes orders from a queue using multiple worker threads and updates the warehouse stock.
  */
-class OrderProcessor {
+public class OrderProcessor {
 
     private final Warehouse warehouse;
     private final BlockingQueue<Order> queue;
@@ -33,13 +39,15 @@ class OrderProcessor {
      * Starts worker threads to process orders from the queue.
      * Stops when poisoned.
      */
-    void startWorkers(int count) {
+    public void startWorkers(int count) {
         for (int i = 0; i < count; i++) {
             workers.submit(() -> {
                 try {
                     while (true) {
                         Order order = queue.take();
-                        if (order.isPoison()) break;
+                        if (order.isPoison()) {
+                            break;
+                        }
                         warehouse.process(order);
                         synchronized (processedOrders) {
                             processedOrders.add(order);
@@ -57,7 +65,7 @@ class OrderProcessor {
      *
      * @throws InterruptedException if the current thread is interrupted
      */
-    void awaitProcessing() throws InterruptedException {
+    public void awaitProcessing() throws InterruptedException {
         workers.shutdown();
         workers.awaitTermination(1, TimeUnit.SECONDS);
     }
