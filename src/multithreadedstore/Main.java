@@ -1,7 +1,17 @@
 package multithreadedstore;
 
-import java.util.*;
-import java.util.concurrent.*;
+import multithreadedstore.model.Order;
+import multithreadedstore.model.Product;
+import multithreadedstore.model.Report;
+import multithreadedstore.model.Warehouse;
+import multithreadedstore.service.Analytics;
+import multithreadedstore.service.OrderGenerator;
+import multithreadedstore.service.OrderProcessor;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
 
@@ -29,10 +39,10 @@ public class Main {
         orderGenerator.awaitCompletion(ORDER_PROCESSOR_THREADS);
         orderProcessor.awaitProcessing();
 
-        Analytics.Report report = Analytics.generateReport(processedOrders);
+        Report report = Analytics.generateReport(processedOrders);
 
-        System.out.println("Total orders: " + report.getTotalOrders());
-        System.out.println("Total profit: " + report.getTotalProfit());
-        System.out.println("Top 3 selling products: " + report.getTop3Products());
+        System.out.println("Total orders: " + report.totalOrders());
+        System.out.println("Total profit: " + report.totalProfit());
+        System.out.println("Top 3 selling products: " + report.top3Products());
     }
 }

@@ -1,39 +1,17 @@
-package multithreadedstore;
+package multithreadedstore.service;
 
-import java.util.*;
+import multithreadedstore.model.Order;
+import multithreadedstore.model.Report;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Provides analytics reports on processed orders.
  */
 public class Analytics {
-
-    /**
-     * Represents the summary of processed orders.
-     */
-    public static class Report {
-        private final long totalOrders;
-        private final double totalProfit;
-        private final List<String> top3Products;
-
-        public Report(long totalOrders, double totalProfit, List<String> top3Products) {
-            this.totalOrders = totalOrders;
-            this.totalProfit = totalProfit;
-            this.top3Products = Collections.unmodifiableList(top3Products);
-        }
-
-        public long getTotalOrders() {
-            return totalOrders;
-        }
-
-        public double getTotalProfit() {
-            return totalProfit;
-        }
-
-        public List<String> getTop3Products() {
-            return top3Products;
-        }
-    }
 
     /**
      * Generates a report for a list of processed orders.

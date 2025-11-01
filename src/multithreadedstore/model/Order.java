@@ -1,4 +1,4 @@
-package multithreadedstore;
+package multithreadedstore.model;
 
 import java.util.Collections;
 import java.util.HashMap;

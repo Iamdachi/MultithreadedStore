@@ -1,12 +1,19 @@
-package multithreadedstore;
+package multithreadedstore.service;
+
+import multithreadedstore.model.Order;
+import multithreadedstore.model.Product;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Generates random orders and submits them to a queue for processing.
  */
-class OrderGenerator {
+public class OrderGenerator {
 
     private final List<Product> products;
     private final BlockingQueue<Order> queue;
@@ -30,7 +37,7 @@ class OrderGenerator {
      *
      * @param totalOrders number of orders to generate
      */
-    void startCustomers( int totalOrders) {
+    public void startCustomers(int totalOrders) {
         for (int i = 0; i < totalOrders; i++) {
             customers.submit(() -> {
                 var order = new Order();
