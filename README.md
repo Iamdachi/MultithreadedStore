@@ -11,13 +11,18 @@ Total number of orders; Total profit; Top 3 best selling products;
 multithreadedstore/
 ├── src/
 │   └── multithreadedstore/
-│       ├── Main.java
-│       ├── Product.java
-│       ├── Order.java
-│       ├── Warehouse.java
-│       ├── OrderProcessor.java
-│       ├── OrderGenerator.java
-│       └── Analytics.java
+│       ├── model/
+│       │   ├── Product.java
+│       │   ├── Order.java
+│       │   └── Report.java
+│       │
+│       ├── service/
+│       │   ├── Warehouse.java
+│       │   ├── OrderGenerator.java
+│       │   ├── OrderProcessor.java
+│       │   └── Analytics.java
+│       │
+│       └── Main.java
 └── out/
 ```
 
