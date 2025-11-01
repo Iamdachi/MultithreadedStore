@@ -26,17 +26,26 @@ public class Warehouse {
      *
      * @param order the order to process
      */
-    public void process(Order order) {
+    public boolean process(Order order) {
         if (order == null || order.getItems().isEmpty()) {
-            return;
+            return false;
         }
 
-        order.getItems().forEach((product, quantity) -> {
-            stock.computeIfPresent(product, (key, currentStock) -> {
-                int updated = currentStock - quantity;
-                return Math.max(updated, 0);
-            });
-        });
+        for (var entry : order.getItems().entrySet()) {
+            var product = entry.getKey();
+            var quantity = entry.getValue();
+
+            Integer currentStock = stock.get(product);
+            if (currentStock == null || currentStock < quantity) {
+                return false;
+            }
+        }
+
+        order.getItems().forEach((product, quantity) ->
+                stock.computeIfPresent(product, (key, currentStock) -> currentStock - quantity)
+        );
+
+        return true;
     }
 
 }
