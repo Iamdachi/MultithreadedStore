@@ -37,7 +37,7 @@ mkdir -p out
 
 3. Compile all Java files into that directory:
 ```bash
-javac -d out src/multithreadedstore/*.java
+javac -d out $(find src -name "*.java")
 ```
 
 4. Run the program using the out directory as the classpath:
