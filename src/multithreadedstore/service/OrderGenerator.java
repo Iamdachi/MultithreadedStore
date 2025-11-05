@@ -50,13 +50,13 @@ public class OrderGenerator {
                 Order order;
                 var random = Math.random();
                 if (random < 0.1) {
-                    order = new ReservationOrder();
-                } else if(random >= 0.1 && random < 0.7) {
-                    order = new Order();
-                } else if (random >= 0.7 && orderNumber > 30) {
-                    order = new ReservationCheckoutOrder();
+                    order = new ReservationOrder(); // make a new reservation
+                } else if (random < 0.6) {
+                    order = new Order(); // normal purchase
+                } else if (random < 0.8 && orderNumber > 30) {
+                    order = new ReservationCheckoutOrder(); // checkout an existing reservation
                 } else {
-                    order = new ReservationCancellationOrder();
+                    order = new ReservationCancellationOrder(); // cancel reservation
                 }
                 var product = products.get(ThreadLocalRandom.current().nextInt(products.size()));
                 order.add(product, 1);
