@@ -19,12 +19,14 @@ public class Analytics {
      * @param processed the list of processed orders
      * @return the analytics report
      */
-    public static Report generateReport(List<Order> processed) {
-        if (processed == null || processed.isEmpty()) {
-            return new Report(0, 0.0, Collections.emptyList());
+    public static Report generateReport(List<Order> processed, List<Order> reservedOrders) {
+        if (processed == null || processed.isEmpty() || reservedOrders == null || reservedOrders.isEmpty()) {
+            return new Report(0, 0.0, Collections.emptyList(), 0);
         }
 
         long totalOrders = processed.size();
+
+        long totalReservations = reservedOrders.size();
 
         double totalProfit = processed.parallelStream()
                 .flatMap(order -> order.getItems().entrySet().stream())
@@ -43,6 +45,6 @@ public class Analytics {
                 .map(Map.Entry::getKey)
                 .toList();
 
-        return new Report(totalOrders, totalProfit, top3Products);
+        return new Report(totalOrders, totalProfit, top3Products, totalReservations);
     }
 }

@@ -49,8 +49,6 @@ public class Order {
 
     /**
      * Returns an unmodifiable view of the items in this order.
-     *
-     * @return map of products to their quantities
      */
     public Map<Product, Integer> getItems() {
         return Collections.unmodifiableMap(items);
@@ -58,10 +56,27 @@ public class Order {
 
     /**
      * Checks whether this order is a poison pill.
-     *
-     * @return true if poison pill, false otherwise
      */
     public boolean isPoison() {
         return poison;
+    }
+
+    /**
+     * Checks whether this order is a reservation.
+     */
+    public boolean isReservationOrder() {
+        return false;
+    }
+
+
+    /**
+     * Checks whether this order is a order from reserved stock.
+     */
+    public boolean isReservationCheckoutOrder() {
+        return false;
+    }
+
+    public boolean isReservationCancellationOrder() {
+        return false;
     }
 }

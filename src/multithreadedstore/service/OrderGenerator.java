@@ -2,6 +2,9 @@ package multithreadedstore.service;
 
 import multithreadedstore.model.Order;
 import multithreadedstore.model.Product;
+import multithreadedstore.model.ReservationCancellationOrder;
+import multithreadedstore.model.ReservationCheckoutOrder;
+import multithreadedstore.model.ReservationOrder;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -41,8 +44,20 @@ public class OrderGenerator {
      */
     public void startCustomers(int totalOrders) {
         for (int i = 0; i < totalOrders; i++) {
+            int orderNumber = i;
             customers.submit(() -> {
-                var order = new Order();
+                // like 90 % chance this is gonna be order
+                Order order;
+                var random = Math.random();
+                if (random < 0.1) {
+                    order = new ReservationOrder();
+                } else if(random >= 0.1 && random < 0.7) {
+                    order = new Order();
+                } else if (random >= 0.7 && orderNumber > 30) {
+                    order = new ReservationCheckoutOrder();
+                } else {
+                    order = new ReservationCancellationOrder();
+                }
                 var product = products.get(ThreadLocalRandom.current().nextInt(products.size()));
                 order.add(product, 1);
                 queue.add(order);
@@ -64,5 +79,4 @@ public class OrderGenerator {
             queue.put(Order.POISON);
         }
     }
-
 }
