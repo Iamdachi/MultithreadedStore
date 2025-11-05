@@ -23,6 +23,8 @@ public class Warehouse {
 
     /**
      * Processes an order, reducing the stock of each product accordingly.
+     * Order can not process if it is empty or more is ordered than in stock. In that case return false
+     * Return true if order processed.
      *
      * @param order the order to process
      */
