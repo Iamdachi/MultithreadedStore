@@ -1,6 +1,7 @@
 package multithreadedstore.service;
 
 import multithreadedstore.model.Order;
+import multithreadedstore.model.Product;
 import multithreadedstore.model.Report;
 
 import java.util.Collections;
@@ -19,12 +20,13 @@ public class Analytics {
      * @param processed the list of processed orders
      * @return the analytics report
      */
-    public static Report generateReport(List<Order> processed, List<Order> reservedOrders) {
+    public static Report generateReport(List<Order> processed, List<Order> reservedOrders, Map<Product, Integer> maxReservedByProduct) {
         if (processed == null || processed.isEmpty() || reservedOrders == null || reservedOrders.isEmpty()) {
-            return new Report(0, 0.0, Collections.emptyList(), 0);
+            return new Report(0, 0.0, Collections.emptyList(), 0, maxReservedByProduct);
         }
 
         long totalOrders = processed.size();
+
 
         long totalReservations = reservedOrders.size();
 
@@ -45,6 +47,6 @@ public class Analytics {
                 .map(Map.Entry::getKey)
                 .toList();
 
-        return new Report(totalOrders, totalProfit, top3Products, totalReservations);
+        return new Report(totalOrders, totalProfit, top3Products, totalReservations, maxReservedByProduct);
     }
 }

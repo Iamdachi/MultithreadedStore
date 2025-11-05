@@ -1,6 +1,7 @@
 package multithreadedstore.model;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -9,7 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Warehouse {
 
     private final ConcurrentHashMap<Product, Integer> stock = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Product, Integer> reservedStock = new ConcurrentHashMap<>();;
+    private ConcurrentHashMap<Product, Integer> reservedStock = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Product, Integer> maxReservedEver = new ConcurrentHashMap<>();
+
     /**
      * Initializes the warehouse with a list of products, each starting with default quantity.
      *
@@ -19,6 +22,10 @@ public class Warehouse {
         if (products != null) {
             products.forEach(product -> stock.put(product, 10));
         }
+    }
+
+    public ConcurrentHashMap<Product, Integer> getMaxReservedByProduct() {
+        return maxReservedEver;
     }
 
     /**
@@ -55,7 +62,8 @@ public class Warehouse {
 
         reservation.getItems().forEach((product, quantity) -> {
             stock.computeIfPresent(product, (key, currentStock) -> currentStock - quantity);
-            reservedStock.merge(product, quantity, Integer::sum);
+            int reservedQty = reservedStock.merge(product, quantity, Integer::sum);
+            maxReservedEver.merge(product, reservedQty, Math::max);
         });
 
         return true;
@@ -86,7 +94,9 @@ public class Warehouse {
             Product product = entry.getKey();
             int quantity = entry.getValue();
 
-            reservedStock.computeIfPresent(product, (key, reservedQty) -> reservedQty - quantity);
+            int reservedQtyAfterCancel = reservedStock.computeIfPresent(product, (key, reservedQty) -> reservedQty - quantity);
+            maxReservedEver.merge(product, reservedQtyAfterCancel, Math::max);
+
             stock.merge(product, quantity, Integer::sum);
         }
 
@@ -137,4 +147,5 @@ public class Warehouse {
         }
         return true;
     }
+
 }

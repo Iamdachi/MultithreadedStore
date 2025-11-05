@@ -40,11 +40,12 @@ public class Main {
         orderGenerator.awaitCompletion(ORDER_PROCESSOR_THREADS);
         orderProcessor.awaitProcessing();
 
-        Report report = Analytics.generateReport(processedOrders, reservedOrders);
+        Report report = Analytics.generateReport(processedOrders, reservedOrders, warehouse.getMaxReservedByProduct());
 
         System.out.println("Total orders: " + report.totalOrders());
         System.out.println("Total reservations: " + report.totalReservations());
         System.out.println("Total profit: " + report.totalProfit());
         System.out.println("Top 3 selling products: " + report.top3Products());
+        System.out.println("Top 3 selling products: " + report.maxReservedByProduct());
     }
 }
