@@ -48,9 +48,10 @@ public class OrderProcessor {
                         if (order.isPoison()) {
                             break;
                         }
-                        warehouse.process(order);
-                        synchronized (processedOrders) {
-                            processedOrders.add(order);
+                        synchronized (warehouse) {
+                            if (warehouse.process(order)) {
+                                processedOrders.add(order);
+                            }
                         }
                     }
                 } catch (InterruptedException ignored) {
