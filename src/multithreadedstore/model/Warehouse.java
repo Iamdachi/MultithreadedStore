@@ -11,7 +11,7 @@ public class Warehouse {
 
     private final ConcurrentHashMap<Product, Integer> stock = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Product, Integer> reservedStock = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Product, Integer> maxReservedEver = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Product, Integer> getMaxReservedByProduct = new ConcurrentHashMap<>();
 
     /**
      * Initializes the warehouse with a list of products, each starting with default quantity.
@@ -24,8 +24,11 @@ public class Warehouse {
         }
     }
 
+    /**
+     * Returns Map of maximum reserved product quantities per Product.
+     */
     public ConcurrentHashMap<Product, Integer> getMaxReservedByProduct() {
-        return maxReservedEver;
+        return getMaxReservedByProduct;
     }
 
     /**
@@ -51,6 +54,15 @@ public class Warehouse {
         return true;
     }
 
+    /**
+     * Reserve an order, reducing the stock of each product accordingly. Increase the reserved stock and update
+     * maxReservedByProduct for analytics.
+     *
+     * Order can not be reserved if it is empty or more is reserved than in stock. In that case return false.
+     * Return true if order Reserved successfully.
+     *
+     * @param order the order to process
+     */
     public boolean reserveProduct(Order reservation) {
         if (reservation == null || reservation.getItems().isEmpty()) {
             return false;
@@ -63,7 +75,7 @@ public class Warehouse {
         reservation.getItems().forEach((product, quantity) -> {
             stock.computeIfPresent(product, (key, currentStock) -> currentStock - quantity);
             int reservedQty = reservedStock.merge(product, quantity, Integer::sum);
-            maxReservedEver.merge(product, reservedQty, Math::max);
+            getMaxReservedByProduct.merge(product, reservedQty, Math::max);
         });
 
         return true;
@@ -77,17 +89,8 @@ public class Warehouse {
      * @return true if cancellation succeeded, false if not enough reserved
      */
     public boolean cancelReservation(Order reservation) {
-        if (reservation == null || reservation.getItems().isEmpty()) {
+        if (reservation == null || reservation.getItems().isEmpty() || !hasEnoughReserved(reservation)) {
             return false;
-        }
-
-        for (var entry : reservation.getItems().entrySet()) {
-            Product product = entry.getKey();
-            int quantity = entry.getValue();
-            int reservedQty = reservedStock.getOrDefault(product, 0);
-            if (reservedQty < quantity) {
-                return false;
-            }
         }
 
         for (var entry : reservation.getItems().entrySet()) {
@@ -95,7 +98,7 @@ public class Warehouse {
             int quantity = entry.getValue();
 
             int reservedQtyAfterCancel = reservedStock.computeIfPresent(product, (key, reservedQty) -> reservedQty - quantity);
-            maxReservedEver.merge(product, reservedQtyAfterCancel, Math::max);
+            getMaxReservedByProduct.merge(product, reservedQtyAfterCancel, Math::max);
 
             stock.merge(product, quantity, Integer::sum);
         }
@@ -107,22 +110,12 @@ public class Warehouse {
      * Purchases products from reserved stock.
      * Reduces reserved quantity but does not modify normal stock.
      *
-     * @param reservation the reservation to checkout
-     * @return true if checkout succeeded, false if not enough reserved
+     * @param reservation the reservation to check out from reserve stock.
+     * @return true if checkout succeeded, false if not enough reserved.
      */
     public boolean checkoutReservation(Order reservation) {
-        if (reservation == null || reservation.getItems().isEmpty()) {
+        if (reservation == null || reservation.getItems().isEmpty() || !hasEnoughReserved(reservation)) {
             return false;
-        }
-
-        // Check if enough is reserved
-        for (var entry : reservation.getItems().entrySet()) {
-            Product product = entry.getKey();
-            int quantity = entry.getValue();
-            int reservedQty = reservedStock.getOrDefault(product, 0);
-            if (reservedQty < quantity) {
-                return false; // cannot checkout more than reserved
-            }
         }
 
         for (var entry : reservation.getItems().entrySet()) {
@@ -135,7 +128,12 @@ public class Warehouse {
         return true;
     }
 
-
+    /**
+     * Check if all Products in an Order is available in the warehouse stock.
+     *
+     * @param order order to check in the stock.
+     * @return true if all products in order are available.
+     */
     private boolean hasEnoughStock(Order order) {
         for (var entry : order.getItems().entrySet()) {
             var product = entry.getKey();
@@ -148,4 +146,20 @@ public class Warehouse {
         return true;
     }
 
+    /**
+     * Check if all Products in an Order is available in the warehouse reserved stock.
+     *
+     * @param reservation order to check in the reserve stock.
+     * @return true if all products in order are available.
+     */
+    private boolean hasEnoughReserved(Order reservation) {
+        for (var entry : reservation.getItems().entrySet()) {
+            Product product = entry.getKey();
+            int quantity = entry.getValue();
+            if (reservedStock.getOrDefault(product, 0) < quantity) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

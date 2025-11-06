@@ -53,10 +53,12 @@ public class OrderProcessor {
                         synchronized (warehouse) {
                             if (order.isReservationOrder() && warehouse.reserveProduct(order)) {
                                 reservedOrders.add(order);
+                                // TODO: for analytics collect all reserved orders.
                             } else if (order.isReservationCancellationOrder()) {
                                 warehouse.cancelReservation(order);
-                            } else if (order.isReservationCheckoutOrder()) {
-                                warehouse.checkoutReservation(order);
+                                // TODO: for analytics collect all cancelled reservations.
+                            } else if (order.isReservationCheckoutOrder() && warehouse.checkoutReservation(order)) {
+                                processedOrders.add(order);
                             } else if (warehouse.process(order)) {
                                 processedOrders.add(order);
                             }

@@ -49,7 +49,7 @@ public class OrderGenerator {
                 // like 90 % chance this is gonna be order
                 Order order;
                 var random = Math.random();
-                if (random < 0.1) {
+                if (random < 0.3) {
                     order = new ReservationOrder(); // make a new reservation
                 } else if (random < 0.6) {
                     order = new Order(); // normal purchase
