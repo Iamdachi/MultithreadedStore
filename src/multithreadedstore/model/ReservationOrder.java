@@ -1,7 +1,7 @@
 package multithreadedstore.model;
 
 /**
- * Represents a reservation made by a customer.
+ * Represents a reservation order.
  */
 public class ReservationOrder extends Order {
 

@@ -7,6 +7,7 @@ import java.util.Map;
 /**
  * Represents an order containing products and their quantities.
  * Can also act as a poison pill to signal termination in multithreaded queues.
+ * Includes different methods to distinguish between different types of orders.
  */
 public class Order {
 
@@ -68,14 +69,16 @@ public class Order {
         return false;
     }
 
-
     /**
-     * Checks whether this order is a order from reserved stock.
+     * Indicates this order is not an order from reserved stock.
      */
     public boolean isReservationCheckoutOrder() {
         return false;
     }
 
+    /**
+     * Indicates this order is not a reserve cancellation order from reserved stock.
+     */
     public boolean isReservationCancellationOrder() {
         return false;
     }

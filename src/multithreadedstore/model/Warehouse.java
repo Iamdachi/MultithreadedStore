@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Warehouse {
 
     private final ConcurrentHashMap<Product, Integer> stock = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Product, Integer> reservedStock = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Product, Integer> getMaxReservedByProduct = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Product, Integer> reservedStock = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Product, Integer> maxReservedByProduct = new ConcurrentHashMap<>();
 
     /**
      * Initializes the warehouse with a list of products, each starting with default quantity.
@@ -28,7 +28,7 @@ public class Warehouse {
      * Returns Map of maximum reserved product quantities per Product.
      */
     public ConcurrentHashMap<Product, Integer> getMaxReservedByProduct() {
-        return getMaxReservedByProduct;
+        return maxReservedByProduct;
     }
 
     /**
@@ -55,7 +55,7 @@ public class Warehouse {
     }
 
     /**
-     * Reserve an order, reducing the stock of each product accordingly. Increase the reserved stock and update
+     * Reserves an order, reducing the stock of each product accordingly. Increase the reserved stock and update
      * maxReservedByProduct for analytics.
      *
      * Order can not be reserved if it is empty or more is reserved than in stock. In that case return false.
@@ -75,7 +75,7 @@ public class Warehouse {
         reservation.getItems().forEach((product, quantity) -> {
             stock.computeIfPresent(product, (key, currentStock) -> currentStock - quantity);
             int reservedQty = reservedStock.merge(product, quantity, Integer::sum);
-            getMaxReservedByProduct.merge(product, reservedQty, Math::max);
+            maxReservedByProduct.merge(product, reservedQty, Math::max);
         });
 
         return true;
@@ -98,7 +98,7 @@ public class Warehouse {
             int quantity = entry.getValue();
 
             int reservedQtyAfterCancel = reservedStock.computeIfPresent(product, (key, reservedQty) -> reservedQty - quantity);
-            getMaxReservedByProduct.merge(product, reservedQtyAfterCancel, Math::max);
+            maxReservedByProduct.merge(product, reservedQtyAfterCancel, Math::max);
 
             stock.merge(product, quantity, Integer::sum);
         }
@@ -129,7 +129,7 @@ public class Warehouse {
     }
 
     /**
-     * Check if all Products in an Order is available in the warehouse stock.
+     * Checks if all Products in an Order is available in the warehouse stock.
      *
      * @param order order to check in the stock.
      * @return true if all products in order are available.
@@ -147,7 +147,7 @@ public class Warehouse {
     }
 
     /**
-     * Check if all Products in an Order is available in the warehouse reserved stock.
+     * Checks if all Products in an Order is available in the warehouse reserved stock.
      *
      * @param reservation order to check in the reserve stock.
      * @return true if all products in order are available.

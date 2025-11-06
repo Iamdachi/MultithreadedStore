@@ -19,6 +19,11 @@ public class Main {
     private static final int CUSTOMER_THREADS = 3;
     private static final int TOTAL_ORDERS = 50;
 
+    /**
+     * Entry point for the multithreaded store simulation.
+     * Initializes products, warehouse, order generator, and order processor,
+     * runs the simulation, and prints an analytics report.
+     */
     public static void main(String[] args) throws InterruptedException {
         var products = List.of(
                 new Product("Phone", 800),

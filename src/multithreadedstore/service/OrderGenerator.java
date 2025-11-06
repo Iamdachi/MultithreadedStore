@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Generates random orders and submits them to a queue for processing.
+ * Generates random customer orders and submits them to a shared queue
+ * for processing by worker threads.
  */
 public class OrderGenerator {
 
@@ -24,11 +25,11 @@ public class OrderGenerator {
     private final ExecutorService customers;
 
     /**
-     * Creates an OrderGenerator.
+     * Constructs a new {@code OrderGenerator}.
      *
-     * @param products the list of products to generate orders from
-     * @param queue the queue to which orders will be submitted
-     * @param threadPoolSize number of customer threads to generate orders
+     * @param products       list of products available for orders
+     * @param queue          queue to submit generated orders
+     * @param threadPoolSize number of customer threads generating orders
      */
     public OrderGenerator(List<Product> products, BlockingQueue<Order> queue, int threadPoolSize) {
         this.products = products;
@@ -37,25 +38,26 @@ public class OrderGenerator {
     }
 
     /**
-     * Starts customer threads generating orders.
+     * Starts threads that generate random orders and submit them to the queue.
+     * Orders can be normal purchases, reservations, checkouts, or cancellations
+     * with randomized probabilities.
      *
-     * @param totalOrders number of orders to generate
+     * @param totalOrders total number of orders to generate
      */
     public void startCustomers(int totalOrders) {
         for (int i = 0; i < totalOrders; i++) {
             int orderNumber = i;
             customers.submit(() -> {
-                // like 90 % chance this is gonna be order
                 Order order;
-                var random = Math.random();
+                double random = Math.random();
                 if (random < 0.2) {
-                    order = new ReservationOrder(); // make a new reservation
+                    order = new ReservationOrder();
                 } else if (random < 0.8) {
-                    order = new Order(); // normal purchase
+                    order = new Order();
                 } else if (random < 0.8 && orderNumber > 40) {
-                    order = new ReservationCheckoutOrder(); // checkout an existing reservation
+                    order = new ReservationCheckoutOrder();
                 } else {
-                   order = new ReservationCancellationOrder(); // cancel reservation
+                    order = new ReservationCancellationOrder();
                 }
                 var product = products.get(ThreadLocalRandom.current().nextInt(products.size()));
                 order.add(product, 1);
@@ -65,10 +67,11 @@ public class OrderGenerator {
     }
 
     /**
-     * Waits for all customer threads to finish and then adds poison pills to the queue.
+     * Waits for all customer threads to finish generating orders and
+     * then inserts poison pills into the queue to signal workers to stop.
      *
      * @param workerCount number of worker threads that will consume orders
-     * @throws InterruptedException if the current thread is interrupted
+     * @throws InterruptedException if the current thread is interrupted while waiting
      */
     public void awaitCompletion(int workerCount) throws InterruptedException {
         customers.shutdown();
@@ -79,3 +82,4 @@ public class OrderGenerator {
         }
     }
 }
+
