@@ -18,6 +18,7 @@ public class OrderProcessor {
     private final BlockingQueue<Order> queue;
     private final List<Order> processedOrders;
     private final List<Order> reservedOrders;
+    private final List<Order> cancelledOrders;
     private final ExecutorService workers;
 
     /**
@@ -29,11 +30,12 @@ public class OrderProcessor {
      * @param workerCount number of worker threads
      */
     public OrderProcessor(Warehouse warehouse, BlockingQueue<Order> orderQueue,
-                          List<Order> processedOrders, List<Order> reservedOrders, int workerCount) {
+                          List<Order> processedOrders, List<Order> reservedOrders, List<Order> cancelledOrders, int workerCount) {
         this.warehouse = warehouse;
         this.queue = orderQueue;
         this.processedOrders = processedOrders;
         this.reservedOrders = reservedOrders;
+        this.cancelledOrders = cancelledOrders;
         this.workers = Executors.newFixedThreadPool(workerCount);
     }
 
@@ -53,10 +55,8 @@ public class OrderProcessor {
                         synchronized (warehouse) {
                             if (order.isReservationOrder() && warehouse.reserveProduct(order)) {
                                 reservedOrders.add(order);
-                                // TODO: for analytics collect all reserved orders.
-                            } else if (order.isReservationCancellationOrder()) {
-                                warehouse.cancelReservation(order);
-                                // TODO: for analytics collect all cancelled reservations.
+                            } else if (order.isReservationCancellationOrder() && warehouse.cancelReservation(order)) {
+                                cancelledOrders.add(order);
                             } else if (order.isReservationCheckoutOrder() && warehouse.checkoutReservation(order)) {
                                 processedOrders.add(order);
                             } else if (warehouse.process(order)) {

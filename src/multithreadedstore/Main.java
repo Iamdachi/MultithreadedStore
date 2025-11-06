@@ -30,8 +30,9 @@ public class Main {
         var queue = new LinkedBlockingQueue<Order>();
         var processedOrders = Collections.synchronizedList(new ArrayList<Order>());
         var reservedOrders = Collections.synchronizedList(new ArrayList<Order>());
+        var cancelledOrders = Collections.synchronizedList(new ArrayList<Order>());
 
-        var orderProcessor = new OrderProcessor(warehouse, queue, processedOrders, reservedOrders, ORDER_PROCESSOR_THREADS);
+        var orderProcessor = new OrderProcessor(warehouse, queue, processedOrders, reservedOrders, cancelledOrders, ORDER_PROCESSOR_THREADS);
         var orderGenerator = new OrderGenerator(products, queue, CUSTOMER_THREADS);
 
         orderProcessor.startWorkers(ORDER_PROCESSOR_THREADS);
@@ -40,10 +41,11 @@ public class Main {
         orderGenerator.awaitCompletion(ORDER_PROCESSOR_THREADS);
         orderProcessor.awaitProcessing();
 
-        Report report = Analytics.generateReport(processedOrders, reservedOrders, warehouse.getMaxReservedByProduct());
+        Report report = Analytics.generateReport(processedOrders, reservedOrders,cancelledOrders, warehouse.getMaxReservedByProduct());
 
         System.out.println("Total orders: " + report.totalOrders());
         System.out.println("Total reservations: " + report.totalReservations());
+        System.out.println("Total cancellations: " + report.totalCancellations());
         System.out.println("Total profit: " + report.totalProfit());
         System.out.println("Top 3 selling products: " + report.top3Products());
         System.out.println("Top 3 selling products: " + report.maxReservedByProduct());

@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 
-
 /**
  * Generates random orders and submits them to a queue for processing.
  */
@@ -49,14 +48,14 @@ public class OrderGenerator {
                 // like 90 % chance this is gonna be order
                 Order order;
                 var random = Math.random();
-                if (random < 0.3) {
+                if (random < 0.2) {
                     order = new ReservationOrder(); // make a new reservation
-                } else if (random < 0.6) {
+                } else if (random < 0.8) {
                     order = new Order(); // normal purchase
-                } else if (random < 0.8 && orderNumber > 30) {
+                } else if (random < 0.8 && orderNumber > 40) {
                     order = new ReservationCheckoutOrder(); // checkout an existing reservation
                 } else {
-                    order = new ReservationCancellationOrder(); // cancel reservation
+                   order = new ReservationCancellationOrder(); // cancel reservation
                 }
                 var product = products.get(ThreadLocalRandom.current().nextInt(products.size()));
                 order.add(product, 1);

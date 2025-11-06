@@ -61,7 +61,7 @@ public class Warehouse {
      * Order can not be reserved if it is empty or more is reserved than in stock. In that case return false.
      * Return true if order Reserved successfully.
      *
-     * @param order the order to process
+     * @param reservation the order to process
      */
     public boolean reserveProduct(Order reservation) {
         if (reservation == null || reservation.getItems().isEmpty()) {
