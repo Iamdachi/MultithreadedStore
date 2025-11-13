@@ -7,6 +7,7 @@ import java.util.Map;
 /**
  * Represents an order containing products and their quantities.
  * Can also act as a poison pill to signal termination in multithreaded queues.
+ * Includes different methods to distinguish between different types of orders.
  */
 public class Order {
 
@@ -49,8 +50,6 @@ public class Order {
 
     /**
      * Returns an unmodifiable view of the items in this order.
-     *
-     * @return map of products to their quantities
      */
     public Map<Product, Integer> getItems() {
         return Collections.unmodifiableMap(items);
@@ -58,10 +57,29 @@ public class Order {
 
     /**
      * Checks whether this order is a poison pill.
-     *
-     * @return true if poison pill, false otherwise
      */
     public boolean isPoison() {
         return poison;
+    }
+
+    /**
+     * Checks whether this order is a reservation.
+     */
+    public boolean isReservationOrder() {
+        return false;
+    }
+
+    /**
+     * Indicates this order is not an order from reserved stock.
+     */
+    public boolean isReservationCheckoutOrder() {
+        return false;
+    }
+
+    /**
+     * Indicates this order is not a reserve cancellation order from reserved stock.
+     */
+    public boolean isReservationCancellationOrder() {
+        return false;
     }
 }
